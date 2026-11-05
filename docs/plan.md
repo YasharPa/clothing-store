@@ -88,12 +88,17 @@ Package layout inside `src/`:
   user in memory if saving the file fails. `AddUser.java` is now only for creating the first admin while the server is stopped.
 - For the teammate doing the admin screen: send `Request(ADD_USER, new NewAccount(...))` and show the `Response` message.
 
-### Step 9 - No double login  <- next
+### Step 9 - No double login  (DONE)
+- Built: `server/LoggedInUsers` (one shared, thread-safe set of logged-in usernames); `ClientHandler` checks it after the
+  password is right and removes the user in a `finally` when the connection ends (goodbye, crash or error).
+- Known limit: if a computer dies silently (cable pulled, no reset), the server notices only when the operating system
+  times the connection out, so that user may stay "logged in" for a while. Possible later fix: an idle timeout or a
+  periodic ping. Not needed for the assignment's basic rule.
 - **Concepts:** shared state between threads, `ConcurrentHashMap`/`synchronized`, logging out when the connection drops.
 - **We build:** a set of currently-logged-in users on the server.
 - **Done when:** the second login of the same user is refused; after the first disconnects, it's allowed again.
 
-### Step 10 - The login window
+### Step 10 - The login window  <- next
 - **Concepts:** Swing (`JFrame`, `JTextField`, `JPasswordField`, `JButton`), event listeners, never freezing the window while waiting for the server.
 - **We build:** `client/LoginWindow`.
 - **Done when:** you type a username and password, press Login, and see success or an error message.

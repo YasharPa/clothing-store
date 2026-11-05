@@ -23,13 +23,15 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final UserStore userStore;
+    private final LoggedInUsers loggedInUsers;
 
     /** Who is logged in on this connection. Null until a login succeeds. */
     private User user;
 
-    public ClientHandler(Socket socket, UserStore userStore) {
+    public ClientHandler(Socket socket, UserStore userStore, LoggedInUsers loggedInUsers) {
         this.socket = socket;
         this.userStore = userStore;
+        this.loggedInUsers = loggedInUsers;
     }
 
     /** The job of the thread: talk to the client until it disconnects. */
@@ -47,6 +49,21 @@ public class ClientHandler implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             // A problem with ONE client must not stop the server or the other clients.
             System.err.println("Problem with client " + client + ": " + e);
+        } finally {
+            // Runs however the connection ended (goodbye, crash, error), so the user is never stuck "logged in".
+            logOut();
+        }
+    }
+
+    /**
+     * Removes this connection's user from the list of logged-in users. Safe to call when nobody is logged in.
+     * Not private so that the tests can pretend the connection ended.
+     */
+    void logOut() {
+        if (user != null) {
+            loggedInUsers.logOut(user.getUsername());
+            System.out.println("Logged out: " + user);
+            user = null;
         }
     }
 
@@ -109,7 +126,15 @@ public class ClientHandler implements Runnable {
             return new Response(false, "Wrong username or password");
         }
 
-        user = result.get();
+        // The password is right. Only now do we check whether this user is already on another computer
+        // (checking first would tell anyone which users are online, without knowing a password).
+        User found = result.get();
+        if (!loggedInUsers.logIn(found.getUsername())) {
+            System.out.println("Refused a second login for \"" + found.getUsername() + "\"");
+            return new Response(false, "This user is already logged in on another computer");
+        }
+
+        user = found;
         System.out.println("Logged in: " + user);
         return new Response(true, "Welcome, " + user.getUsername(), user);
     }

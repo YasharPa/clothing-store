@@ -14,7 +14,7 @@ import java.util.Scanner;
  * Use it ONLY while the server is stopped, for example to create the very first admin.
  * While the server is running it owns the file and keeps its own copy in memory, so a user
  * added here would be missed, and could even be wiped by the server's next save.
- * So the tool refuses to run when it finds the server's port in use.
+ * So the tool refuses to runs when it finds the server's port in use.
  * With the server running, an admin creates users with the ADD_USER request instead.
  */
 public class AddUser {
