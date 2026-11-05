@@ -70,12 +70,17 @@ Package layout inside `src/`:
 - **We build:** `server/UserStore` (loads users from a file) and a first admin user for testing.
 - **Done when:** the server can answer "is this username/password valid?" in a unit test.
 
-### Step 8 - Login over the network  <- next
+### Step 8 - Login over the network  (DONE, explaining the code)
+- Built: `LOGIN` request type, `common/Credentials`, `Request`/`Response` now carry a payload/data,
+  `ClientHandler` checks logins with `UserStore` and remembers the logged-in `User`; everything except LOGIN is refused
+  until you log in; `Client` asks for username and password first.
+- Changed from the original plan: no separate `AuthService` yet (it would only pass calls through). Step 9 adds
+  the "who is logged in" registry, which is where a shared service becomes worth it.
 - **Concepts:** switch/dispatch on request type, returning success or an error message.
 - **We build:** `server/AuthService`, hook `LOGIN` into `ClientHandler`.
 - **Done when:** a test client sends a login and gets "ok + role + branch" or "wrong password".
 
-### Step 9 - No double login
+### Step 9 - No double login  <- next
 - **Concepts:** shared state between threads, `ConcurrentHashMap`/`synchronized`, logging out when the connection drops.
 - **We build:** a set of currently-logged-in users on the server.
 - **Done when:** the second login of the same user is refused; after the first disconnects, it's allowed again.

@@ -12,6 +12,12 @@ shared customers, employees, reports, chat between branches and logs.
 - `docs/learning-notes.md` - Java refreshers as we go
 - `src/` - the Java source code (will be filled in as we build)
 
+## Running the program (VS Code, from the project root)
+1. Once: run `src/server/SeedUsers.java`. It creates `data/users.txt` with 4 test accounts
+   (usernames `admin`, `manager`, `cashier`, `seller`; the test passwords are in `SeedUsers.java`).
+2. Run `src/server/Server.java` and leave it running.
+3. Run `src/client/Client.java` (as many times as you like), log in, type a message, `bye` to quit.
+
 ## Running the tests
 - Folders: `src/` (code), `test/` (JUnit tests), `lib/` (the JUnit jar, committed so everyone has it).
 - In VS Code: open the Testing panel (flask icon) and press run. `.vscode/settings.json` already points at `lib/` and `test/`.

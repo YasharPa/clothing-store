@@ -2,25 +2,28 @@ package common;
 
 import java.io.Serializable;
 
-/** A message from the client to the server: what kind of request it is, and its content. */
+/**
+ * A message from the client to the server: what kind of request it is,
+ * and its payload (the content; what it should be depends on the type, see RequestType).
+ */
 public class Request implements Serializable {
 
     // Version number for the Serializable mechanism. Keep it as is.
     private static final long serialVersionUID = 1L;
 
     private final RequestType type;
-    private final String text;
+    private final Serializable payload;
 
-    public Request(RequestType type, String text) {
+    public Request(RequestType type, Serializable payload) {
         this.type = type;
-        this.text = text;
+        this.payload = payload;
     }
 
     public RequestType getType() {
         return type;
     }
 
-    public String getText() {
-        return text;
+    public Serializable getPayload() {
+        return payload;
     }
 }

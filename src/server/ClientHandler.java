@@ -1,7 +1,9 @@
 package server;
 
+import common.Credentials;
 import common.Request;
 import common.Response;
+import common.User;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Optional;
 
 /**
  * The worker that talks to ONE client. The server creates one ClientHandler
@@ -17,9 +20,14 @@ import java.net.SocketException;
 public class ClientHandler implements Runnable {
 
     private final Socket socket;
+    private final UserStore userStore;
 
-    public ClientHandler(Socket socket) {
+    /** Who is logged in on this connection. Null until a login succeeds. */
+    private User user;
+
+    public ClientHandler(Socket socket, UserStore userStore) {
         this.socket = socket;
+        this.userStore = userStore;
     }
 
     /** The job of the thread: talk to the client until it disconnects. */
@@ -57,8 +65,8 @@ public class ClientHandler implements Runnable {
 
             Response response;
             if (message instanceof Request request) {
-                System.out.println("Received from " + socket.getRemoteSocketAddress() + ": "
-                        + request.getType() + " \"" + request.getText() + "\"");
+                // Only the type is logged: a LOGIN request contains a password.
+                System.out.println("Received from " + socket.getRemoteSocketAddress() + ": " + request.getType());
                 response = process(request);
             } else {
                 // Something that is not a Request arrived: answer with an error, don't crash.
@@ -78,7 +86,38 @@ public class ClientHandler implements Runnable {
             return new Response(false, "The request has no type");
         }
         return switch (request.getType()) {
-            case ECHO -> new Response(true, "Echo: " + request.getText());
+            case LOGIN -> login(request);
+            case ECHO -> echo(request);
         };
+    }
+
+    private Response login(Request request) {
+        if (user != null) {
+            return new Response(false, "Already logged in");
+        }
+        if (!(request.getPayload() instanceof Credentials credentials)) {
+            return new Response(false, "A login needs a username and a password");
+        }
+
+        Optional<User> result = userStore.authenticate(credentials.getUsername(), credentials.getPassword());
+        if (result.isEmpty()) {
+            System.out.println("Failed login for \"" + credentials.getUsername() + "\"");
+            // Same message for a wrong username and a wrong password, so nobody can find out which users exist.
+            return new Response(false, "Wrong username or password");
+        }
+
+        user = result.get();
+        System.out.println("Logged in: " + user);
+        return new Response(true, "Welcome, " + user.getUsername(), user);
+    }
+
+    private Response echo(Request request) {
+        if (user == null) {
+            return new Response(false, "Please log in first");
+        }
+        if (!(request.getPayload() instanceof String text)) {
+            return new Response(false, "An echo needs a text");
+        }
+        return new Response(true, "Echo: " + text);
     }
 }
