@@ -28,9 +28,16 @@ shared customers, employees, reports, chat between branches and logs.
 ## Running the tests
 - Folders: `src/` (code), `test/` (JUnit tests), `lib/` (the JUnit jar, committed so everyone has it).
 - In VS Code: open the Testing panel (flask icon) and press run. `.vscode/settings.json` already points at `lib/` and `test/`.
-- From a terminal (from the project root):
+- From a terminal (from the project root). Compile - **Windows PowerShell** (the VS Code default on Windows):
   ```
-  javac -cp lib/junit-platform-console-standalone-1.13.4.jar -d out src/*/*.java test/*/*.java
+  javac -cp lib/junit-platform-console-standalone-1.13.4.jar -d out (Get-ChildItem src,test -Recurse -Filter *.java).FullName
+  ```
+  or **Git Bash / Mac / Linux**:
+  ```
+  javac -cp lib/junit-platform-console-standalone-1.13.4.jar -d out $(find src test -name "*.java")
+  ```
+  Then run the tests (same in every terminal):
+  ```
   java -jar lib/junit-platform-console-standalone-1.13.4.jar execute --class-path out --scan-class-path
   ```
 
