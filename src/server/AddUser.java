@@ -8,8 +8,11 @@ import java.util.Scanner;
 
 /**
  * A small development tool: run it to add one user to data/users.txt.
- * Stop and restart the server afterwards, because the server reads the file only when it starts.
- * (Real accounts will be created from the admin screen.)
+ *
+ * Use it ONLY while the server is stopped, for example to create the very first admin.
+ * While the server is running it owns the file and keeps its own copy in memory, so a user
+ * added here would be missed, and could even be wiped by the server's next save.
+ * With the server running, an admin creates users with the ADD_USER request instead.
  */
 public class AddUser {
 
@@ -36,7 +39,7 @@ public class AddUser {
 
         try {
             store.addUser(username, password, role, branch);
-            System.out.println("Added \"" + username + "\". Restart the server so it sees the new user.");
+            System.out.println("Added \"" + username + "\". The server must NOT be running while you use this tool.");
         } catch (IllegalArgumentException e) {
             // Everything UserStore.addUser refuses: empty fields, a ';', a name that is taken.
             System.out.println("Could not add the user: " + e.getMessage());

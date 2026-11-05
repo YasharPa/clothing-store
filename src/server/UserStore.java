@@ -80,7 +80,13 @@ public class UserStore {
         String salt = PasswordHasher.newSalt();
         String hash = PasswordHasher.hash(password, salt);
         users.put(username, new StoredUser(salt, hash, new User(username, role, branch)));
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            // Do not keep a user in memory that is not in the file: it would vanish at the next restart.
+            users.remove(username);
+            throw e;
+        }
     }
 
     /** True if a user with this name exists. */

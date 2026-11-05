@@ -88,6 +88,19 @@ class UserStoreTest {
     }
 
     @Test
+    void aUserWhoCouldNotBeSavedIsNotKeptInMemory() throws IOException {
+        // The "folder" of this file is really a normal file, so saving must fail.
+        Path notAFolder = folder.resolve("blocker");
+        Files.writeString(notAFolder, "I am a file");
+        UserStore failing = new UserStore(notAFolder.resolve("users.txt"));
+
+        assertThrows(IOException.class, () -> failing.addUser("eli", "pw", Role.CASHIER, "Haifa"));
+
+        assertFalse(failing.exists("eli"));
+        assertTrue(failing.authenticate("eli", "pw").isEmpty());
+    }
+
+    @Test
     void aBrokenFileIsReportedInsteadOfIgnored() throws IOException {
         Path broken = folder.resolve("broken.txt");
         Files.writeString(broken, "only;three;parts\n");

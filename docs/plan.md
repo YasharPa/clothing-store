@@ -80,6 +80,14 @@ Package layout inside `src/`:
 - **We build:** `server/AuthService`, hook `LOGIN` into `ClientHandler`.
 - **Done when:** a test client sends a login and gets "ok + role + branch" or "wrong password".
 
+### Step 8b - Create users while the server runs  (DONE)
+- Problem found while testing: adding a user needed a server restart (the server reads `users.txt` once and
+  owns the file). Fix: accounts are created through the server.
+- Built: `ADD_USER` request + `common/NewAccount`; `ClientHandler` allows it only for a logged-in ADMIN
+  (first use of roles for authorization); `Client` has a `/adduser` command; `UserStore.addUser` no longer keeps a
+  user in memory if saving the file fails. `AddUser.java` is now only for creating the first admin while the server is stopped.
+- For the teammate doing the admin screen: send `Request(ADD_USER, new NewAccount(...))` and show the `Response` message.
+
 ### Step 9 - No double login  <- next
 - **Concepts:** shared state between threads, `ConcurrentHashMap`/`synchronized`, logging out when the connection drops.
 - **We build:** a set of currently-logged-in users on the server.

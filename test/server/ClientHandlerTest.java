@@ -1,6 +1,7 @@
 package server;
 
 import common.Credentials;
+import common.NewAccount;
 import common.Request;
 import common.RequestType;
 import common.Response;
@@ -23,14 +24,25 @@ class ClientHandlerTest {
     @TempDir
     Path folder;
 
+    private UserStore store;
     private ClientHandler handler;
 
     @BeforeEach
-    void createHandlerWithOneUser() throws IOException {
-        UserStore store = new UserStore(folder.resolve("users.txt"));
+    void createHandlerWithTwoUsers() throws IOException {
+        store = new UserStore(folder.resolve("users.txt"));
         store.addUser("dana", "pass-123", Role.CASHIER, "Tel Aviv");
+        store.addUser("root", "root-pass-1", Role.ADMIN, "HQ");
         // process() does not use the socket, so the tests do not need a real connection.
         handler = new ClientHandler(null, store);
+    }
+
+    /** A second connection to the same server: its own handler, the same user list. */
+    private ClientHandler anotherConnection() {
+        return new ClientHandler(null, store);
+    }
+
+    private Response addUser(ClientHandler who, String username, String password, Role role, String branch) {
+        return who.process(new Request(RequestType.ADD_USER, new NewAccount(username, password, role, branch)));
     }
 
     private Response login(String username, String password) {
@@ -114,6 +126,67 @@ class ClientHandlerTest {
         login("dana", "pass-123");
 
         assertFalse(handler.process(new Request(RequestType.ECHO, null)).isSuccess());
+    }
+
+    @Test
+    void adminCanAddAUserWhoCanThenLogInOnAnotherConnection() {
+        login("root", "root-pass-1");
+
+        Response added = addUser(handler, "eli", "eli-pass-1", Role.SALESPERSON, "Haifa");
+
+        assertTrue(added.isSuccess());
+        // No restart in between: a different connection can use the new account straight away.
+        ClientHandler eliConnection = anotherConnection();
+        Response eliLogin = eliConnection.process(
+                new Request(RequestType.LOGIN, new Credentials("eli", "eli-pass-1")));
+        assertTrue(eliLogin.isSuccess());
+        assertEquals(Role.SALESPERSON, ((User) eliLogin.getData()).getRole());
+        assertEquals("Haifa", ((User) eliLogin.getData()).getBranch());
+    }
+
+    @Test
+    void nonAdminCannotAddAUser() {
+        login("dana", "pass-123");
+
+        Response response = addUser(handler, "eli", "eli-pass-1", Role.SALESPERSON, "Haifa");
+
+        assertFalse(response.isSuccess());
+        assertEquals("Not allowed: only an admin can add users", response.getMessage());
+        assertFalse(store.exists("eli"));
+    }
+
+    @Test
+    void nobodyCanAddAUserBeforeLoggingIn() {
+        Response response = addUser(handler, "eli", "eli-pass-1", Role.SALESPERSON, "Haifa");
+
+        assertFalse(response.isSuccess());
+        assertEquals("Please log in first", response.getMessage());
+        assertFalse(store.exists("eli"));
+    }
+
+    @Test
+    void addingAnExistingUsernameGivesAnError() {
+        login("root", "root-pass-1");
+
+        Response response = addUser(handler, "dana", "other", Role.CASHIER, "Haifa");
+
+        assertFalse(response.isSuccess());
+        assertTrue(response.getMessage().contains("already exists"));
+    }
+
+    @Test
+    void addingAUserWithAnEmptyPasswordGivesAnError() {
+        login("root", "root-pass-1");
+
+        assertFalse(addUser(handler, "eli", "", Role.CASHIER, "Haifa").isSuccess());
+        assertFalse(store.exists("eli"));
+    }
+
+    @Test
+    void addUserWithoutAccountDetailsIsRejected() {
+        login("root", "root-pass-1");
+
+        assertFalse(handler.process(new Request(RequestType.ADD_USER, "not an account")).isSuccess());
     }
 
     @Test

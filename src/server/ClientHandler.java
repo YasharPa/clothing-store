@@ -1,8 +1,10 @@
 package server;
 
 import common.Credentials;
+import common.NewAccount;
 import common.Request;
 import common.Response;
+import common.Role;
 import common.User;
 
 import java.io.EOFException;
@@ -87,6 +89,7 @@ public class ClientHandler implements Runnable {
         }
         return switch (request.getType()) {
             case LOGIN -> login(request);
+            case ADD_USER -> addUser(request);
             case ECHO -> echo(request);
         };
     }
@@ -109,6 +112,32 @@ public class ClientHandler implements Runnable {
         user = result.get();
         System.out.println("Logged in: " + user);
         return new Response(true, "Welcome, " + user.getUsername(), user);
+    }
+
+    /** Creates a new user. Authorization: only a logged-in ADMIN is allowed. */
+    private Response addUser(Request request) {
+        if (user == null) {
+            return new Response(false, "Please log in first");
+        }
+        if (user.getRole() != Role.ADMIN) {
+            System.out.println(user.getUsername() + " tried to add a user but is not an admin");
+            return new Response(false, "Not allowed: only an admin can add users");
+        }
+        if (!(request.getPayload() instanceof NewAccount account)) {
+            return new Response(false, "Adding a user needs the account details");
+        }
+
+        try {
+            userStore.addUser(account.getUsername(), account.getPassword(), account.getRole(), account.getBranch());
+        } catch (IllegalArgumentException e) {
+            return new Response(false, e.getMessage()); // for example: the username already exists
+        } catch (IOException e) {
+            System.err.println("Could not save the new user: " + e);
+            return new Response(false, "The server could not save the new user");
+        }
+
+        System.out.println(user.getUsername() + " added the user \"" + account.getUsername() + "\"");
+        return new Response(true, "Added the user " + account.getUsername());
     }
 
     private Response echo(Request request) {

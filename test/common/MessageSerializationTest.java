@@ -46,6 +46,18 @@ class MessageSerializationTest {
     }
 
     @Test
+    void addUserRequestSurvivesTheTrip() throws Exception {
+        Request received = (Request) sendAndReceive(new Request(RequestType.ADD_USER,
+                new NewAccount("eli", "eli-pass-1", Role.SALESPERSON, "Haifa")));
+
+        NewAccount account = (NewAccount) received.getPayload();
+        assertEquals("eli", account.getUsername());
+        assertEquals("eli-pass-1", account.getPassword());
+        assertEquals(Role.SALESPERSON, account.getRole());
+        assertEquals("Haifa", account.getBranch());
+    }
+
+    @Test
     void responseWithoutDataSurvivesTheTrip() throws Exception {
         Response received = (Response) sendAndReceive(new Response(true, "ok"));
 
