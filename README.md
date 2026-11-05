@@ -22,7 +22,7 @@ shared customers, employees, reports, chat between branches and logs.
 - **Server running (normal case):** log in as an `admin` in the client and type `/adduser`. The new user can log in
   immediately; nobody has to be logged out. Only an ADMIN is allowed to do this.
 - **Server stopped (e.g. to create the very first admin):** run `src/server/AddUser.java` and answer its four questions.
-  Never use it while the server is running.
+  It refuses to run while the server is running (it checks whether the server's port is in use).
 
 ## Running the tests
 - Folders: `src/` (code), `test/` (JUnit tests), `lib/` (the JUnit jar, committed so everyone has it).
