@@ -1,0 +1,19 @@
+# Compiled Java
+*.class
+out/
+target/
+build/
+
+# IDE files (each teammate has their own)
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+.classpath
+.project
+.settings/
+
+# OS junk
+.DS_Store
+Thumbs.db
+bin/
