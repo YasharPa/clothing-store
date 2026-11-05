@@ -40,4 +40,13 @@ class MessageSerializationTest {
         assertTrue(received.isSuccess());
         assertEquals("ok", received.getMessage());
     }
+
+    @Test
+    void userSurvivesTheTrip() throws Exception {
+        User received = (User) sendAndReceive(new User("dana", Role.CASHIER, "Tel Aviv"));
+
+        assertEquals("dana", received.getUsername());
+        assertEquals(Role.CASHIER, received.getRole());
+        assertEquals("Tel Aviv", received.getBranch());
+    }
 }

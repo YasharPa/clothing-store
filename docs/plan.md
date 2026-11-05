@@ -54,19 +54,23 @@ Package layout inside `src/`:
 
 ## TASK 2 - Login screen with user authentication
 
-### Step 6 - What is authentication?  <- we are here
+### Step 6 - What is authentication?  (DONE)
 - **Concepts:** authentication vs authorization, why never to store plain passwords, hashing, roles and branch.
 - **We build:** `common/Role` (enum: ADMIN, SHIFT_MANAGER, CASHIER, SALESPERSON - customers are records, not users),
   `common/User` data (username, role, branch), design the login request/response.
   We only *provide* the role; what each role may do is up to each feature (teammates just check `user.getRole()`).
 - **Done when:** you understand why the server (not the client) must decide if a login is valid.
 
-### Step 7 - Users on the server
+### Step 7 - Users on the server  (DONE, explaining the code)
+- Built: `server/PasswordHasher` (salt + SHA-256), `server/UserStore` (file `data/users.txt`), `server/SeedUsers` (test accounts), tests.
+- Run `server.SeedUsers` once from the project root to create `data/users.txt` (it is git-ignored).
+- Known limit: one round of SHA-256 is fine for a course project but fast to brute-force; real systems use a slow
+  hash (bcrypt/PBKDF2). `PasswordHasher` is the only place to change if we ever want that.
 - **Concepts:** file reading/writing, hashing with `MessageDigest` (SHA-256 + salt), `Map`.
 - **We build:** `server/UserStore` (loads users from a file) and a first admin user for testing.
 - **Done when:** the server can answer "is this username/password valid?" in a unit test.
 
-### Step 8 - Login over the network
+### Step 8 - Login over the network  <- next
 - **Concepts:** switch/dispatch on request type, returning success or an error message.
 - **We build:** `server/AuthService`, hook `LOGIN` into `ClientHandler`.
 - **Done when:** a test client sends a login and gets "ok + role + branch" or "wrong password".
