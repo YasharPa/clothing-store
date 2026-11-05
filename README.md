@@ -16,10 +16,11 @@ shared customers, employees, reports, chat between branches and logs.
 1. Once: run `src/server/SeedUsers.java`. It creates `data/users.txt` with 4 test accounts
    (usernames `admin`, `manager`, `cashier`, `seller`; the test passwords are in `SeedUsers.java`).
 2. Run `src/server/Server.java` and leave it running.
-3. Run `src/client/Client.java` (as many times as you like), log in, type a message, `bye` to quit.
+3. Run `src/client/ClientApp.java` (as many times as you like) to open the login window.
+   `src/client/Client.java` is the older text version, still handy for testing (it has the `/adduser` command).
 
 ### Adding users
-- **Server running (normal case):** log in as an `admin` in the client and type `/adduser`. The new user can log in
+- **Server running (normal case):** log in as an admin in the text client (`Client.java`) and type `/adduser`. The new user can log in
   immediately; nobody has to be logged out. Only an ADMIN is allowed to do this.
 - **Server stopped (e.g. to create the very first admin):** run `src/server/AddUser.java` and answer its four questions.
   It refuses to run while the server is running (it checks whether the server's port is in use).

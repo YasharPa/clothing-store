@@ -255,6 +255,26 @@ class ClientHandlerTest {
     }
 
     @Test
+    void logoutRequestFreesTheUserForAnotherComputer() {
+        login("dana", "pass-123");
+
+        Response response = handler.process(new Request(RequestType.LOGOUT, null));
+
+        assertTrue(response.isSuccess());
+        assertFalse(loggedInUsers.isLoggedIn("dana"));
+        assertFalse(echo("hi").isSuccess()); // this connection is logged out too
+        assertTrue(login(anotherConnection(), "dana", "pass-123").isSuccess());
+    }
+
+    @Test
+    void logoutRequestWithoutBeingLoggedInGivesAnError() {
+        Response response = handler.process(new Request(RequestType.LOGOUT, null));
+
+        assertFalse(response.isSuccess());
+        assertEquals("Not logged in", response.getMessage());
+    }
+
+    @Test
     void loggingOutWhenNobodyIsLoggedInDoesNothing() {
         handler.logOut();
 

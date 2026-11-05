@@ -106,6 +106,7 @@ public class ClientHandler implements Runnable {
         }
         return switch (request.getType()) {
             case LOGIN -> login(request);
+            case LOGOUT -> handleLogout();
             case ADD_USER -> addUser(request);
             case ECHO -> echo(request);
         };
@@ -137,6 +138,15 @@ public class ClientHandler implements Runnable {
         user = found;
         System.out.println("Logged in: " + user);
         return new Response(true, "Welcome, " + user.getUsername(), user);
+    }
+
+    /** The client asked to log out (for example the "Log out" button). The connection itself stays open. */
+    private Response handleLogout() {
+        if (user == null) {
+            return new Response(false, "Not logged in");
+        }
+        logOut();
+        return new Response(true, "Logged out");
     }
 
     /** Creates a new user. Authorization: only a logged-in ADMIN is allowed. */

@@ -27,11 +27,8 @@ import java.util.Scanner;
  */
 public class Client {
 
-    // "localhost" = this same computer. Later this becomes the server's real address.
-    private static final String HOST = "localhost";
-
     public static void main(String[] args) {
-        try (Socket socket = new Socket(HOST, Protocol.PORT);
+        try (Socket socket = new Socket(Protocol.HOST, Protocol.PORT);
              // Output stream first, then input stream (see the note in ClientHandler.handleClient).
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -59,7 +56,7 @@ public class Client {
                 System.out.println(response.isSuccess() ? response.getMessage() : "Error: " + response.getMessage());
             }
         } catch (ConnectException e) {
-            System.err.println("Could not connect to the server at " + HOST + ":" + Protocol.PORT
+            System.err.println("Could not connect to the server at " + Protocol.HOST + ":" + Protocol.PORT
                     + ". Is the server running?");
         } catch (EOFException e) {
             System.out.println("The server closed the connection.");

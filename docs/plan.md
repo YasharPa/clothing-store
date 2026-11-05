@@ -98,12 +98,19 @@ Package layout inside `src/`:
 - **We build:** a set of currently-logged-in users on the server.
 - **Done when:** the second login of the same user is refused; after the first disconnects, it's allowed again.
 
-### Step 10 - The login window  <- next
+### Step 10 - The login window  (DONE, explaining the code)
+- Built: `client/ServerConnection` (one connection: send a Request, get a Response), `client/LoginWindow`
+  (username, hidden password, Log in button, red message line; network work in a SwingWorker so it never freezes),
+  `client/MainWindow` (placeholder: who is logged in + Log out), `client/ClientApp` (starts the window),
+  `LOGOUT` request so logging out frees the user at once, `Protocol.HOST`.
+- Option 1 chosen: no admin "Add user" form in the window (the admin screen is a separate requirement);
+  `/adduser` in the text client works until that screen exists.
+- For teammates: put your screens into `MainWindow`; use its `ServerConnection` to send your requests.
 - **Concepts:** Swing (`JFrame`, `JTextField`, `JPasswordField`, `JButton`), event listeners, never freezing the window while waiting for the server.
 - **We build:** `client/LoginWindow`.
 - **Done when:** you type a username and password, press Login, and see success or an error message.
 
-### Step 11 - Polish and hand-off
+### Step 11 - Polish and hand-off  <- next
 - **Concepts:** documentation (Javadoc), clean code, what teammates need from our part.
 - **We build:** Javadoc on public classes, a short "how to run" in the README, more tests.
 - **Done when:** a teammate can pull the repo, run the server and client, and log in.
