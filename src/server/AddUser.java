@@ -19,6 +19,7 @@ import java.util.Scanner;
  */
 public class AddUser {
 
+    /** Asks for one user's details in the terminal and adds them to data/users.txt (server must be stopped). */
     public static void main(String[] args) throws IOException {
         if (serverIsRunning()) {
             System.out.println("The server is running (port " + Protocol.PORT + " is in use), so this tool will not "

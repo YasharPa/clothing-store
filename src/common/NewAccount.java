@@ -15,6 +15,12 @@ public class NewAccount implements Serializable {
     private final Role role;
     private final String branch;
 
+    /**
+     * @param username the new user's login name (must be unique, no ';')
+     * @param password the new user's password (plain text; the server stores only a salted hash)
+     * @param role     what the user is allowed to do
+     * @param branch   the store the user works in (no ';')
+     */
     public NewAccount(String username, String password, Role role, String branch) {
         this.username = username;
         this.password = password;

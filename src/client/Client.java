@@ -11,32 +11,27 @@ import common.User;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ConnectException;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
 
 /**
- * A text client for testing: it connects to the server, asks you to log in, and then
- * sends what you type as ECHO requests. Special commands:
+ * A text client for testing (the real client is the login window, see ClientApp).
+ * It connects to the server, asks you to log in, and then sends what you type as ECHO requests.
+ * Special commands:
  *   /adduser  creates a new user (the server only allows it for an ADMIN)
  *   bye       quits
- * (The login window replaces the typed prompts in Step 10.)
  */
 public class Client {
 
+    /** Starts the text client. */
     public static void main(String[] args) {
-        try (Socket socket = new Socket(Protocol.HOST, Protocol.PORT);
-             // Output stream first, then input stream (see the note in ClientHandler.handleClient).
-             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+        try (ServerConnection connection = new ServerConnection(Protocol.HOST, Protocol.PORT);
              Scanner keyboard = new Scanner(System.in)) {
 
             System.out.println("Connected to the server.");
 
-            User user = logIn(out, in, keyboard);
+            User user = logIn(connection, keyboard);
             if (user == null) {
                 return; // the input ended before a successful login
             }
@@ -49,10 +44,10 @@ public class Client {
                     break;
                 }
                 if (text.equals("/adduser")) {
-                    addUser(out, in, keyboard);
+                    addUser(connection, keyboard);
                     continue;
                 }
-                Response response = send(out, in, new Request(RequestType.ECHO, text));
+                Response response = connection.send(new Request(RequestType.ECHO, text));
                 System.out.println(response.isSuccess() ? response.getMessage() : "Error: " + response.getMessage());
             }
         } catch (ConnectException e) {
@@ -60,14 +55,13 @@ public class Client {
                     + ". Is the server running?");
         } catch (EOFException e) {
             System.out.println("The server closed the connection.");
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.err.println("Could not talk to the server: " + e);
         }
     }
 
     /** Asks for a username and password until the server accepts them. Returns null if the input ends. */
-    private static User logIn(ObjectOutputStream out, ObjectInputStream in, Scanner keyboard)
-            throws IOException, ClassNotFoundException {
+    private static User logIn(ServerConnection connection, Scanner keyboard) throws IOException {
         while (true) {
             String username = prompt(keyboard, "Username: ");
             String password = username == null ? null : prompt(keyboard, "Password: ");
@@ -75,7 +69,8 @@ public class Client {
                 return null;
             }
 
-            Response response = send(out, in, new Request(RequestType.LOGIN, new Credentials(username, password)));
+            Response response = connection.send(
+                    new Request(RequestType.LOGIN, new Credentials(username, password)));
             if (response.isSuccess()) {
                 return (User) response.getData();
             }
@@ -84,8 +79,7 @@ public class Client {
     }
 
     /** Asks for the details of a new account and sends them to the server. */
-    private static void addUser(ObjectOutputStream out, ObjectInputStream in, Scanner keyboard)
-            throws IOException, ClassNotFoundException {
+    private static void addUser(ServerConnection connection, Scanner keyboard) throws IOException {
         String username = prompt(keyboard, "New username: ");
         String password = username == null ? null : prompt(keyboard, "New password: ");
         String roleText = password == null ? null : prompt(keyboard, "Role " + Arrays.toString(Role.values()) + ": ");
@@ -102,7 +96,7 @@ public class Client {
             return;
         }
 
-        Response response = send(out, in, new Request(RequestType.ADD_USER,
+        Response response = connection.send(new Request(RequestType.ADD_USER,
                 new NewAccount(username.trim(), password, role, branch.trim())));
         System.out.println(response.isSuccess() ? response.getMessage() : "Error: " + response.getMessage());
     }
@@ -111,13 +105,5 @@ public class Client {
     private static String prompt(Scanner keyboard, String text) {
         System.out.print(text);
         return keyboard.hasNextLine() ? keyboard.nextLine() : null;
-    }
-
-    /** Sends one Request and waits for the Response. */
-    private static Response send(ObjectOutputStream out, ObjectInputStream in, Request request)
-            throws IOException, ClassNotFoundException {
-        out.writeObject(request);
-        out.flush();
-        return (Response) in.readObject();
     }
 }

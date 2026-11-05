@@ -28,6 +28,11 @@ public class ClientHandler implements Runnable {
     /** Who is logged in on this connection. Null until a login succeeds. */
     private User user;
 
+    /**
+     * @param socket        the connection to this one client
+     * @param userStore     the server's users (shared by all handlers), used to check logins
+     * @param loggedInUsers who is logged in right now (shared by all handlers), used to block double logins
+     */
     public ClientHandler(Socket socket, UserStore userStore, LoggedInUsers loggedInUsers) {
         this.socket = socket;
         this.userStore = userStore;

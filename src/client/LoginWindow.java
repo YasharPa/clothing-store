@@ -38,6 +38,7 @@ public final class LoginWindow extends JFrame {
     /** The connection to the server: made at the first attempt and kept for retries. Null when not connected. */
     private ServerConnection connection;
 
+    /** Builds the login window. Call setVisible(true) to show it. */
     public LoginWindow() {
         super("Store Chain - Login");
         setDefaultCloseOperation(EXIT_ON_CLOSE);

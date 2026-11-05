@@ -15,6 +15,11 @@ public class User implements Serializable {
     private final Role role;
     private final String branch;
 
+    /**
+     * @param username the login name
+     * @param role     what the user is allowed to do
+     * @param branch   the store the user works in
+     */
     public User(String username, Role role, String branch) {
         this.username = username;
         this.role = role;

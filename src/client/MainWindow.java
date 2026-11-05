@@ -29,6 +29,10 @@ public final class MainWindow extends JFrame {
     private final ServerConnection connection;
     private final JButton logoutButton = new JButton("Log out");
 
+    /**
+     * @param user       who logged in (from the server's login answer)
+     * @param connection the open, logged-in connection; this window now owns it and closes it on log out
+     */
     public MainWindow(User user, ServerConnection connection) {
         super("Store Chain - " + user.getUsername());
         this.connection = connection;

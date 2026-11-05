@@ -14,6 +14,10 @@ public class Request implements Serializable {
     private final RequestType type;
     private final Serializable payload;
 
+    /**
+     * @param type    what kind of request this is
+     * @param payload the content; its class depends on the type (see RequestType), or null if the type needs none
+     */
     public Request(RequestType type, Serializable payload) {
         this.type = type;
         this.payload = payload;

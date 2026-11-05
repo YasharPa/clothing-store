@@ -14,6 +14,7 @@ import java.nio.file.Files;
  */
 public class Server {
 
+    /** Starts the server. It runs until the program is stopped. */
     public static void main(String[] args) {
         // try-with-resources: the ServerSocket is closed automatically at the end.
         try (ServerSocket serverSocket = new ServerSocket(Protocol.PORT)) {

@@ -13,6 +13,10 @@ public class Credentials implements Serializable {
     private final String username;
     private final String password;
 
+    /**
+     * @param username the name the user typed
+     * @param password the password as typed (plain text: it only travels to the server, which hashes it)
+     */
     public Credentials(String username, String password) {
         this.username = username;
         this.password = password;

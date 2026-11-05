@@ -27,6 +27,7 @@ public class LoggedInUsers {
         usernames.remove(username);
     }
 
+    /** True if this user is logged in on some computer right now. */
     public boolean isLoggedIn(String username) {
         return usernames.contains(username);
     }

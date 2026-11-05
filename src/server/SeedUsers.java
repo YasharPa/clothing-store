@@ -14,6 +14,7 @@ public class SeedUsers {
 
     public static final Path USERS_FILE = Path.of("data", "users.txt");
 
+    /** Creates data/users.txt with the test accounts, unless it already exists. */
     public static void main(String[] args) throws IOException {
         if (Files.exists(USERS_FILE)) {
             System.out.println(USERS_FILE + " already exists. Delete it first if you want to recreate it.");

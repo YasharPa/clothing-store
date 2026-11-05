@@ -98,7 +98,7 @@ Package layout inside `src/`:
 - **We build:** a set of currently-logged-in users on the server.
 - **Done when:** the second login of the same user is refused; after the first disconnects, it's allowed again.
 
-### Step 10 - The login window  (DONE, explaining the code)
+### Step 10 - The login window  (DONE)
 - Built: `client/ServerConnection` (one connection: send a Request, get a Response), `client/LoginWindow`
   (username, hidden password, Log in button, red message line; network work in a SwingWorker so it never freezes),
   `client/MainWindow` (placeholder: who is logged in + Log out), `client/ClientApp` (starts the window),
@@ -110,7 +110,10 @@ Package layout inside `src/`:
 - **We build:** `client/LoginWindow`.
 - **Done when:** you type a username and password, press Login, and see success or an error message.
 
-### Step 11 - Polish and hand-off  <- next
+### Step 11 - Polish and hand-off  (DONE)
+- Javadoc on all constructors and entry points; the text `Client` now reuses `ServerConnection`.
+- `docs/for-teammates.md` (how it fits together, how to add a feature), `docs/learning-notes.md`, README rewritten.
+- Final check from a fresh copy of the repository (build, all tests, server + windows).
 - **Concepts:** documentation (Javadoc), clean code, what teammates need from our part.
 - **We build:** Javadoc on public classes, a short "how to run" in the README, more tests.
 - **Done when:** a teammate can pull the repo, run the server and client, and log in.
