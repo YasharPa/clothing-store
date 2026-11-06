@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * it holds the records of the customers, reports, logs part and the shared data records
  */
-public final class dataTransfer {
-    private dataTransfer() {
+public final class DataTransfer {
+    private DataTransfer() {
     }
 
     public record CustomerForm(CustomerType type, String id, String fullName, String phone) { }

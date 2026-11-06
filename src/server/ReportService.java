@@ -2,7 +2,7 @@ package server;
 
 import shared.Employee;
 import shared.LogType;
-import shared.dataTransfer.*;
+import shared.DataTransfer.*;
 import shared.ServiceException;
 
 import java.time.LocalDate;

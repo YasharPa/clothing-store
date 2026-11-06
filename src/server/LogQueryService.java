@@ -1,8 +1,8 @@
 package server;
 
 import shared.Employee;
-import shared.dataTransfer.LogEntry;
-import shared.dataTransfer.LogQuery;
+import shared.DataTransfer.LogEntry;
+import shared.DataTransfer.LogQuery;
 import shared.Role;
 import shared.ServiceException;
 

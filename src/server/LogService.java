@@ -1,7 +1,7 @@
 package server;
 
 import shared.LogType;
-import shared.dataTransfer.LogEntry;
+import shared.DataTransfer.LogEntry;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
