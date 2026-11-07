@@ -16,7 +16,11 @@ public final class ReportExporter {
     }
 
     public static Path save(ReportResult report) throws IOException {
-        Path dir = Paths.get("reports");
+        return save(report, Paths.get("reports"));
+    }
+
+    /** Saves the report as report-yyyyMMdd-HHmmss.txt in the given folder (created if needed). */
+    public static Path save(ReportResult report, Path dir) throws IOException {
         Files.createDirectories(dir);
         String time = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
         Path file = dir.resolve("report-" + time + ".txt");
