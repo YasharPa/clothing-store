@@ -62,7 +62,7 @@ class LogQueryServiceTest {
     @Test
     void theTypeFilterKeepsOnlyThatType() {
         log.log(LogType.PRODUCT_ADDED, "filter-test", "added a product");
-        log.log(LogType.STOCK_PURCHASE, "filter-test", "bought stock");
+        log.log(LogType.SALE, "filter-test", "sold item");
 
         List<LogEntry> entries = service.read(admin, new LogQuery(LogType.PRODUCT_ADDED, 1000));
 

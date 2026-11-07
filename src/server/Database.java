@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * File based storage. The whole state lives in one {@link Store} object that is written as plain text files
- * (settings, branches, products, stock, customers, sales) in the data folder after every change.
+ * File based storage.
+ * settings, branches, products, stock, customers, sales in the data folder after every change.
  * One record per line, fields separated by '|'.
  * All access must be done inside synchronized (db) { ... }, and every change must end with db.save().
  */

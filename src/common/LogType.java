@@ -13,7 +13,6 @@ public enum LogType {
     LOGOUT("Logout"),
     POLICY_CHANGED("Password policy change"),
     SALE("Sale"),
-    STOCK_PURCHASE("Stock purchase"),
     PRODUCT_ADDED("Product added"),
     REPORT("Report generated"),
     CHAT_STARTED("Chat opened"),
