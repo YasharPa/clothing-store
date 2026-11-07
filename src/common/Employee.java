@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 
 public class Employee {
@@ -23,6 +23,10 @@ public class Employee {
         this.role = role;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public Role getRole() {
         return role;
     }
@@ -33,6 +37,5 @@ public class Employee {
 
     @Override
     public String toString() {
-        return fullName + " (" + username + ", " + role.getLabel() + ")";
-    }
+        return fullName + " (" + username + ", " + role + ")";    }
 }

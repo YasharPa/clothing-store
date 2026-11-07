@@ -1,10 +1,13 @@
-package shared;
+package common;
+
+import java.io.Serializable;
 
 /**
  * customer type (NEW / RETURNING / VIP)
  * defines its own purchase track and promotion
  */
-public abstract class Customer {
+public abstract class Customer implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final String id;
     private String fullName;
     private String phone;

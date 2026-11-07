@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 
 /** A new customer: 10% welcome discount, becomes RETURNING after the first purchase. */

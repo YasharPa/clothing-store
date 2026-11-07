@@ -1,6 +1,6 @@
 package client;
 
-import shared.DataTransfer.ReportResult;
+import common.DataTransfer.ReportResult;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

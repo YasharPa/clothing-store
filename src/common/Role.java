@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 public enum Role {
     ADMIN("System admin"),

@@ -1,8 +1,9 @@
-package shared;
+package common;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * it holds the records of the customers, reports, logs part and the shared data records
@@ -11,25 +12,25 @@ public final class DataTransfer {
     private DataTransfer() {
     }
 
-    public record CustomerForm(CustomerType type, String id, String fullName, String phone) { }
+    public record CustomerForm(CustomerType type, String id, String fullName, String phone) implements Serializable { }
 
-    public record CustomersUpdate(List<Customer> customers, String description) { }
+    public record CustomersUpdate(List<Customer> customers, String description) implements Serializable { }
 
     public enum ReportMode { BY_BRANCH, BY_PRODUCT, BY_CATEGORY }
 
     /** branchId 0 = all branches | date null = all dates | Empty lists = everything */
     public record ReportRequest(ReportMode mode, int branchId, LocalDate date,
-                                List<Integer> productIds, List<String> categories) { }
+                                List<Integer> productIds, List<String> categories) implements Serializable { }
 
-    public record ReportResult(String title, List<String> lines) {
+    public record ReportResult(String title, List<String> lines) implements Serializable {
         public String asText() {
             return title + System.lineSeparator() + String.join(System.lineSeparator(), lines);
         }
     }
 
-    public record LogQuery(LogType type, int maxLines) { }
+    public record LogQuery(LogType type, int maxLines) implements Serializable { }
 
-    public record LogEntry(LocalDateTime time, LogType type, String user, String details) { }
+    public record LogEntry(LocalDateTime time, LogType type, String user, String details) implements Serializable { }
 
     public record Branch(int id, String name) {
         @Override

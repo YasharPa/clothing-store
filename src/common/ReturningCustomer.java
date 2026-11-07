@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 /** A returning customer: 5% discount ; becomes VIP at 6 purchases / 3500 ILS */
 public class ReturningCustomer extends Customer {

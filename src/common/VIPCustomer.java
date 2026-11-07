@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 /** VIP customer: 25% discount and a gift with every purchase */
 public class VIPCustomer extends Customer {

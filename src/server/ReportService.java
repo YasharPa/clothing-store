@@ -1,9 +1,9 @@
 package server;
 
-import shared.Employee;
-import shared.LogType;
-import shared.DataTransfer.*;
-import shared.ServiceException;
+import common.Employee;
+import common.LogType;
+import common.DataTransfer.*;
+import common.ServiceException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

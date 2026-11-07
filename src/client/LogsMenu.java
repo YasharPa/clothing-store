@@ -1,9 +1,9 @@
 package client;
 
-import shared.LogType;
-import shared.DataTransfer.LogEntry;
-import shared.DataTransfer.LogQuery;
-import shared.ServiceException;
+import common.LogType;
+import common.DataTransfer.LogEntry;
+import common.DataTransfer.LogQuery;
+import common.ServiceException;
 
 import java.io.BufferedReader;
 import java.io.IOException;

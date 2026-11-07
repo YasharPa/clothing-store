@@ -1,10 +1,10 @@
 package server;
 
-import shared.Employee;
-import shared.DataTransfer.LogEntry;
-import shared.DataTransfer.LogQuery;
-import shared.Role;
-import shared.ServiceException;
+import common.Employee;
+import common.DataTransfer.LogEntry;
+import common.DataTransfer.LogQuery;
+import common.Role;
+import common.ServiceException;
 
 import java.util.List;
 

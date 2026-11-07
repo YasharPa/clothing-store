@@ -1,4 +1,4 @@
-package shared;
+package common;
 
 /** Kinds of actions written to the system log. */
 public enum LogType {
