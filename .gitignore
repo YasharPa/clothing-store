@@ -19,6 +19,31 @@
 *.tar.gz
 *.rar
 
+# ...but keep the JUnit launcher in lib/ so everyone can run the tests
+!lib/*.jar
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Build output
+out/
+target/
+build/
+bin/
+
+# Editors / IDEs (keep only our shared VS Code settings)
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+.classpath
+.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Server data (user accounts with password hashes) - never commit
+data/
