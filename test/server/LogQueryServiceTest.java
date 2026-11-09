@@ -1,0 +1,105 @@
+package server;
+
+import common.DataTransfer.LogEntry;
+import common.DataTransfer.LogQuery;
+import common.LogType;
+import common.Role;
+import common.ServiceException;
+import common.User;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/** Checks who may read the log, and the filter by action type and the limit on the number of lines. */
+class LogQueryServiceTest {
+
+    private final User admin = new User("root", Role.ADMIN, "Tel Aviv");
+    private final User manager = new User("moshe", Role.SHIFT_MANAGER, "Tel Aviv");
+    private final User cashier = new User("moshe", Role.CASHIER, "Tel Aviv");
+    private final User seller = new User("avi", Role.SALESPERSON, "Tel Aviv");
+
+    private final LogQueryService service = new LogQueryService();
+    private final LogService log = LogService.getInstance();
+
+    @BeforeAll
+    static void useATemporaryDataFolder() {
+        TestEnv.init();
+    }
+
+    @Test
+    void anAdminCanReadTheLog() {
+        log.log(LogType.SALE, "admin-test", "a sale");
+
+        List<LogEntry> entries = service.read(admin, new LogQuery(LogType.SALE, 1000));
+
+        assertEquals("admin-test", entries.get(entries.size() - 1).user());
+    }
+
+    @Test
+    void aShiftManagerCanReadTheLog() {
+        service.read(manager, new LogQuery(null, 10));
+    }
+
+    @Test
+    void aCashierCannotReadTheLog() {
+        assertThrows(ServiceException.class, () -> service.read(cashier, new LogQuery(null, 10)));
+    }
+
+    @Test
+    void aSellerCannotReadTheLog() {
+        assertThrows(ServiceException.class, () -> service.read(seller, new LogQuery(null, 10)));
+    }
+
+    @Test
+    void theTypeFilterKeepsOnlyThatType() {
+        log.log(LogType.PRODUCT_ADDED, "filter-test", "added a product");
+        log.log(LogType.SALE, "filter-test", "sold item");
+
+        List<LogEntry> entries = service.read(admin, new LogQuery(LogType.PRODUCT_ADDED, 1000));
+
+        for (LogEntry entry : entries) {
+            assertEquals(LogType.PRODUCT_ADDED, entry.type());
+        }
+    }
+
+    @Test
+    void maxLinesKeepsTheNewestEntries() {
+        for (int i = 1; i <= 5; i++) {
+            log.log(LogType.CHAT_STARTED, "max-test", "entry " + i);
+        }
+
+        List<LogEntry> entries = service.read(admin, new LogQuery(LogType.CHAT_STARTED, 2));
+
+        assertEquals(2, entries.size());
+        assertEquals("entry 4", entries.get(0).details());
+        assertEquals("entry 5", entries.get(1).details());
+    }
+
+    @Test
+    void aMaxBelowOneStillGivesOneEntry() {
+        log.log(LogType.CHAT_ENDED, "min-test", "x");
+
+        List<LogEntry> entries = service.read(admin, new LogQuery(LogType.CHAT_ENDED, 0));
+
+        assertEquals(1, entries.size());
+    }
+
+    @Test
+    void aHugeMaxIsCutToTheLimit() {
+        List<LogEntry> entries = service.read(admin, new LogQuery(null, 1_000_000));
+
+        assertTrue(entries.size() <= LogQueryService.MAX_LINES_LOGS);
+    }
+
+    @Test
+    void aNewLineInTheDetailsDoesNotBreakTheLog() {
+        log.log(LogType.LOGIN, "newline-test", "first\nsecond");
+
+        List<LogEntry> entries = service.read(admin, new LogQuery(LogType.LOGIN, 1000));
+
+        assertEquals("first second", entries.get(entries.size() - 1).details());
+    }
+}

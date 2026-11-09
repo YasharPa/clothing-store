@@ -1,6 +1,7 @@
 package server;
 
 import common.Credentials;
+import common.LogType;
 import common.NewAccount;
 import common.Request;
 import common.Response;
@@ -24,6 +25,8 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final UserStore userStore;
     private final LoggedInUsers loggedInUsers;
+    private final PartThreeHandler partThree = new PartThreeHandler();
+    private final LogService log = LogService.getInstance();
 
     /** Who is logged in on this connection. Null until a login succeeds. */
     private User user;
@@ -67,6 +70,7 @@ public class ClientHandler implements Runnable {
     void logOut() {
         if (user != null) {
             loggedInUsers.logOut(user.getUsername());
+            log.log(LogType.LOGOUT, user.getUsername(), "Logged out");
             System.out.println("Logged out: " + user);
             user = null;
         }
@@ -114,6 +118,8 @@ public class ClientHandler implements Runnable {
             case LOGOUT -> handleLogout();
             case ADD_USER -> addUser(request);
             case ECHO -> echo(request);
+            case GET_CUSTOMERS, GET_CUSTOMER, ADD_CUSTOMER, UPDATE_CUSTOMER, GET_REPORT, GET_LOGS,
+                 GET_INVENTORY, SELL_ITEM, RESTOCK_ITEM, GET_BRANCHES -> partThree.handle(user, request);
         };
     }
 
@@ -128,6 +134,7 @@ public class ClientHandler implements Runnable {
         Optional<User> result = userStore.authenticate(credentials.getUsername(), credentials.getPassword());
         if (result.isEmpty()) {
             System.out.println("Failed login for \"" + credentials.getUsername() + "\"");
+            log.log(LogType.LOGIN_FAILED, credentials.getUsername(), "Wrong username or password");
             // Same message for a wrong username and a wrong password, so nobody can find out which users exist.
             return new Response(false, "Wrong username or password");
         }
@@ -142,6 +149,7 @@ public class ClientHandler implements Runnable {
 
         user = found;
         System.out.println("Logged in: " + user);
+        log.log(LogType.LOGIN, user.getUsername(), "Logged in");
         return new Response(true, "Welcome, " + user.getUsername(), user);
     }
 
@@ -177,6 +185,8 @@ public class ClientHandler implements Runnable {
         }
 
         System.out.println(user.getUsername() + " added the user \"" + account.getUsername() + "\"");
+        log.log(LogType.EMPLOYEE_REGISTRATION, user.getUsername(), "Added the user " + account.getUsername()
+                + " (" + account.getRole() + ", " + account.getBranch() + ")");
         return new Response(true, "Added the user " + account.getUsername());
     }
 
