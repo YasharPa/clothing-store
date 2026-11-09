@@ -119,7 +119,7 @@ public class ClientHandler implements Runnable {
             case ADD_USER -> addUser(request);
             case ECHO -> echo(request);
             case GET_CUSTOMERS, GET_CUSTOMER, ADD_CUSTOMER, UPDATE_CUSTOMER, GET_REPORT, GET_LOGS,
-                 GET_INVENTORY, SELL_ITEM, RESTOCK_ITEM, GET_BRANCHES -> partThree.handle(user, request);
+                 GET_INVENTORY, SELL_ITEM, RESTOCK_ITEM, GET_BRANCHES, GET_EMPLOYEES -> partThree.handle(user, request);
         };
     }
 

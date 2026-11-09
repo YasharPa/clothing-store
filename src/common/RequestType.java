@@ -29,5 +29,7 @@ public enum RequestType {
     /** Payload: StockChange. Buys stock for your branch. Shift manager only. */
     RESTOCK_ITEM,
     /** No payload. The answer's data is an ArrayList of String, one per branch: "number - name". */
-    GET_BRANCHES
+    GET_BRANCHES,
+    /** No payload. The answer's data is an ArrayList of User: every employee, without passwords. Admin only. */
+    GET_EMPLOYEES
 }

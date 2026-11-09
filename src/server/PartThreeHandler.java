@@ -3,6 +3,7 @@ package server;
 import common.*;
 import common.DataTransfer.*;
 import common.Product;
+import common.Role;
 import server.inventory.FileInventoryRepository;
 import server.inventory.InventoryException;
 import server.inventory.InventoryRepository;
@@ -33,15 +34,17 @@ public class PartThreeHandler {
     private final ReportService reportService;
     private final LogQueryService logQueryService = new LogQueryService();
     private final LogService log = LogService.getInstance();
+    private final EmployeeList employeeList;
 
     /** The normal handler: it uses the data that all the clients share. */
     public PartThreeHandler() {
-        this(sharedDatabase(), sharedRepository, sharedInventory);
+        this(sharedDatabase(), sharedRepository, sharedInventory, SeedUsers.USERS_FILE);
     }
 
     /** A handler on the given data (for the tests, which pass a temporary Database and an in-memory inventory). */
-    public PartThreeHandler(Database db, InventoryRepository repository, InventoryService inventory) {
+    public PartThreeHandler(Database db, InventoryRepository repository, InventoryService inventory, Path usersFile) {
         this.db = db;
+        this.employeeList = new EmployeeList(usersFile);
         this.repository = repository;
         this.inventory = inventory;
         this.customerService = new CustomerService(db);
@@ -84,6 +87,7 @@ public class PartThreeHandler {
                 case SELL_ITEM -> sellItem(user, request);
                 case RESTOCK_ITEM -> restockItem(user, request);
                 case GET_BRANCHES -> getBranches();
+                case GET_EMPLOYEES -> getEmployees(user);
                 default -> new Response(false, "Unknown request");
             };
         } catch (ServiceException | InventoryException | IllegalArgumentException e) {
@@ -130,6 +134,10 @@ public class PartThreeHandler {
             return new Response(false, "The log query is needed");
         }
         return new Response(true, "Log entries", new ArrayList<>(logQueryService.read(user, query)));
+    }
+
+    private Response getEmployees(User user) {
+        return new Response(true, "Employees", new ArrayList<>(employeeList.readAll()));
     }
 
     private Response getBranches() {

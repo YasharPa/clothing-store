@@ -66,8 +66,9 @@ public class Console {
                 System.out.println("5. Show the inventory of my branch");
                 System.out.println("6. Sell a product");
                 System.out.println("7. Buy stock");
+                System.out.println("8. Show all employees");
                 if (isAdmin) {
-                    System.out.println("8. Manage employees");
+                    System.out.println("9. Manage employees");
                 }
                 System.out.println("0. Exit");
                 System.out.print("Choice: ");
@@ -159,7 +160,12 @@ public class Console {
             int quantity = Integer.parseInt(in.readLine().trim());
             StockChange change = new StockChange(productId, quantity);
             System.out.println(send(connection, RequestType.RESTOCK_ITEM, change).getMessage());
-        } else if (choice.equals("8") && isAdmin) {
+        } else if (choice.equals("8")) {
+            List<User> employees = (List<User>) send(connection, RequestType.GET_EMPLOYEES, null).getData();
+            for (User employee : employees) {
+                System.out.println(employee);
+            }
+        } else if (choice.equals("9") && isAdmin) {
             manageEmployees(connection, in);
         } else {
             System.out.println("Please choose from the menu");
@@ -197,8 +203,11 @@ public class Console {
                     branchId = Integer.parseInt(branch.substring(0, branch.indexOf(' ')));
                 }
             }
-            System.out.print("Branch number (" + myBranch + "): ");
-            in.readLine();
+            System.out.print("Branch number: ");
+            String typed = in.readLine().trim();
+            if (!typed.equals(String.valueOf(branchId))) {
+                throw new ServiceException("This branch does not exist");
+            }
         }
 
         List<Integer> productIds = new ArrayList<>();
@@ -283,13 +292,19 @@ public class Console {
     }
     /** The employee screen of the admin. Adding works; the other actions are not supported yet. */
     private static void manageEmployees(ServerConnection connection, BufferedReader in) throws IOException {
-        System.out.println("1. Add an employee");
-        System.out.println("2. Update an employee");
-        System.out.println("3. Delete an employee");
-        System.out.println("4. Change a password");
+        System.out.println("1. Show all employees");
+        System.out.println("2. Add an employee");
+        System.out.println("3. Update an employee");
+        System.out.println("4. Delete an employee");
+        System.out.println("5. Change a password");
         System.out.print("Choice: ");
         String choice = in.readLine().trim();
         if (choice.equals("1")) {
+            List<User> employees = (List<User>) send(connection, RequestType.GET_EMPLOYEES, null).getData();
+            for (User employee : employees) {
+                System.out.println(employee);
+            }
+        } else if (choice.equals("2")) {
             System.out.print("Username: ");
             String username = in.readLine().trim();
             System.out.print("Password: ");
@@ -300,10 +315,10 @@ public class Console {
             String branch = in.readLine().trim();
             NewAccount account = new NewAccount(username, password, role, branch);
             System.out.println(send(connection, RequestType.ADD_USER, account).getMessage());
-        } else if (choice.equals("2") || choice.equals("3") || choice.equals("4")) {
+        } else if (choice.equals("3") || choice.equals("4") || choice.equals("5")) {
             System.out.println("Not supported yet.");
         } else {
-            System.out.println("Please choose 1-4");
+            System.out.println("Please choose 1-5");
         }
     }
 }
