@@ -251,10 +251,10 @@ public class Console {
         System.out.println();
         System.out.println(report.asText());
 
+        Path file = ReportExporter.save(report);
+        System.out.println("The report was saved to " + file);
         System.out.print("Open the report in Notepad? (y/n): ");
         if (in.readLine().trim().equalsIgnoreCase("y")) {
-            Path file = ReportExporter.save(report);
-            System.out.println("Saved to " + file);
             ReportExporter.openInNotepad(file);
         }
     }

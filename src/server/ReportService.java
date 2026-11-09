@@ -16,6 +16,9 @@ import java.util.function.Predicate;
 public class ReportService {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final String THIN_LINE = "-".repeat(60);
+    private static final String THICK_LINE = "=".repeat(60);
+    private static final int NAME_WIDTH = 22;
 
     private final Database db;
     private final LogService log = LogService.getInstance();
@@ -29,6 +32,7 @@ public class ReportService {
             throw new ServiceException("Please choose a report type");
         }
         ReportResult result;
+        String logText;
         synchronized (db) {
             Database.Store myStore = db.store();
             int wantedBranch = reportReq.branchId();
@@ -81,13 +85,18 @@ public class ReportService {
             }
 
             List<String> out = new ArrayList<>();
-            out.add("Scope: " + scopeText + " | Date: " + dateText);
-            out.add("Generated: " + TIME.format(LocalDateTime.now()));
-            out.add("------------------------------------------------------------");
+            out.add(THICK_LINE);
+            out.add("Scope      : " + scopeText);
+            out.add("Date       : " + dateText);
+            out.add("Generated  : " + TIME.format(LocalDateTime.now()));
+            out.add("Created by : " + actor.getUsername());
+            out.add(THICK_LINE);
             out.addAll(lines);
+            out.add(THICK_LINE);
             result = new ReportResult(title, out);
+            logText = title + " (" + scopeText + ", " + dateText + ")";
         }
-        log.log(LogType.REPORT, actor.getUsername(), result.title() + " (" + result.lines().get(0) + ")");
+        log.log(LogType.REPORT, actor.getUsername(), logText);
         return result;
     }
 
@@ -110,6 +119,8 @@ public class ReportService {
 
     private void branchSection(List<SalesRecord> sales, List<Branch> scope,
                                Predicate<SalesRecord> inScope, List<String> lines) {
+        lines.add(String.format("%-20s %6s %7s %14s", "Branch", "Sales", "Items", "Revenue"));
+        lines.add(THIN_LINE);
         int totalQty = 0;
         int totalCount = 0;
         double totalAmount = 0;
@@ -124,15 +135,16 @@ public class ReportService {
                     amount += sale.amount();
                 }
             }
-            lines.add("Branch " + b.name() + ": " + count + " sales, " + qty + " items, revenue " + money(amount));
+            lines.add(String.format("%-20s %6d %7d %14s", shorten(b.name(), 20), count, qty, money(amount)));
             totalQty += qty;
             totalCount += count;
             totalAmount += amount;
         }
         if (scope.size() > 1) {
-            lines.add("------------------------------------------------------------");
-            lines.add("Network total: " + totalCount + " sales, " + totalQty + " items, revenue " + money(totalAmount));
+            lines.add(THIN_LINE);
+            lines.add(String.format("%-20s %6d %7d %14s", "TOTAL", totalCount, totalQty, money(totalAmount)));
         }
+        addEmptyNote(totalCount, lines);
     }
 
     private void productSection(Database.Store myStore, ReportRequest r, List<Branch> scope,
@@ -149,7 +161,10 @@ public class ReportService {
                 chosen.add(p);
             }
         }
+        lines.add(String.format("%-" + NAME_WIDTH + "s %-12s %6s %14s", "Product", "Category", "Units", "Revenue"));
+        lines.add(THIN_LINE);
         double grand = 0;
+        int grandQty = 0;
         for (Product p : chosen) {
             int qty = 0;
             double amount = 0;
@@ -164,15 +179,23 @@ public class ReportService {
                 }
                 qty += bq;
                 if (scope.size() > 1) {
-                    perBranch.append(" [").append(b.name()).append(": ").append(bq).append("]");
+                    if (perBranch.length() > 0) {
+                        perBranch.append(", ");
+                    }
+                    perBranch.append(b.name()).append(" ").append(bq);
                 }
             }
             grand += amount;
-            lines.add(p.name() + " (" + p.category() + "): sold " + qty + " units, revenue " + money(amount)
-                    + perBranch);
+            grandQty += qty;
+            lines.add(String.format("%-" + NAME_WIDTH + "s %-12s %6d %14s", shorten(p.name(), NAME_WIDTH),
+                    shorten(p.category(), 12), qty, money(amount)));
+            if (scope.size() > 1) {
+                lines.add("    by branch: " + perBranch);
+            }
         }
-        lines.add("------------------------------------------------------------");
-        lines.add("Total revenue: " + money(grand));
+        lines.add(THIN_LINE);
+        lines.add(String.format("%-" + NAME_WIDTH + "s %-12s %6d %14s", "TOTAL", "", grandQty, money(grand)));
+        addEmptyNote(grandQty, lines);
     }
 
     private void categorySection(Database.Store myStore, ReportRequest r, List<Branch> scope,
@@ -189,7 +212,10 @@ public class ReportService {
                 chosen.add(match);
             }
         }
+        lines.add(String.format("%-34s %7s %14s", "Category", "Units", "Revenue"));
+        lines.add(THIN_LINE);
         double grand = 0;
+        int grandQty = 0;
         for (String cat : chosen) {
             int qty = 0;
             double amount = 0;
@@ -208,10 +234,31 @@ public class ReportService {
                 }
             }
             grand += amount;
-            lines.add("Category " + cat + ": sold " + qty + " units, revenue " + money(amount) + perBranch);
+            grandQty += qty;
+            lines.add(String.format("%-34s %7d %14s", shorten(cat, 34), qty, money(amount)));
+            if (scope.size() > 1) {
+                lines.add("    by branch: " + perBranch);
+            }
         }
-        lines.add("------------------------------------------------------------");
-        lines.add("Total revenue: " + money(grand));
+        lines.add(THIN_LINE);
+        lines.add(String.format("%-34s %7d %14s", "TOTAL", grandQty, money(grand)));
+        addEmptyNote(grandQty, lines);
+    }
+
+    /** Cuts a long text so that the columns of the table stay aligned. */
+    private static String shorten(String text, int width) {
+        if (text.length() <= width) {
+            return text;
+        }
+        return text.substring(0, width - 2) + "..";
+    }
+
+    /** Adds a clear note when nothing was sold, so an empty report does not look like a mistake. */
+    private static void addEmptyNote(int soldCount, List<String> lines) {
+        if (soldCount == 0) {
+            lines.add("");
+            lines.add("No sales were found for this period.");
+        }
     }
 
     private static String money(double v) {
