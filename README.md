@@ -13,11 +13,10 @@ shared customers, employees, reports, chat between branches and logs.
 - **No double login:** the same user cannot be logged in on two computers at once.
 
 ## Running the program (VS Code, from the project root, JDK 21)
-1. Once: run `src/server/SeedUsers.java`. It creates `data/users.txt` with 4 test accounts
-   (usernames `admin`, `manager`, `cashier`, `seller`; the test passwords are in `SeedUsers.java`).
-2. Run `src/server/Server.java` and leave it running.
-3. Run `src/client/ClientApp.java` (as many times as you like) to open the login window.
-   `src/client/Client.java` is a text version for testing (it has the `/adduser` command).
+1. Once: run src/server/SeedUsers.java. It creates data/users.txt with 4 test accounts (usernames admin, manager, cashier, seller; the test passwords are in SeedUsers.java).
+2. Once: run src/server/SeedStore.java. It creates the products and the stock of the 3 branches (data/inventory-products.txt, data/inventory-stock.txt). Run it before the server; it does nothing if those files already exist.
+3. Run src/server/Server.java and leave it running.
+4. Run src/client/Console.java (as many times as you like) and log in. It is the console client for customers, reports, inventory, logs and employees
 
 ### Adding users
 - **Server running (normal case):** log in as an admin in the text client (`Client.java`) and type `/adduser`.
